@@ -400,8 +400,10 @@ def main():
             </div>
             """)
 
-  final_page = PAGE_TEMPLATE.replace(
-      """    {% for item in results %}
+  final_page = (
+        PAGE_TEMPLATE.replace("{{ timestamp }}", timestamp_str)
+        .replace(
+            """    {% for item in results %}
         {% if item.is_header %}
             <div class="section-header">{{ item.text }}</div>
         {% else %}
@@ -422,8 +424,9 @@ def main():
         </div>
         {% endif %}
     {% endfor %}""",
-      "\n".join(html_rows),
-  )
+            "\n".join(html_rows),
+        )
+    )
 
   with open(HTML_OUTPUT, "w", encoding="utf-8") as f:
     f.write(final_page)
