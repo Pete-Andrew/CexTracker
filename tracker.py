@@ -4,6 +4,7 @@ import re
 import smtplib
 from datetime import datetime
 from email.message import EmailMessage
+import pytz
 import requests
 
 TRACKED_CARDS = [
@@ -40,7 +41,7 @@ TRACKED_CARDS = [
     },
     {
         "name": "Asus GeForce RTX 3090 ROG Strix Gaming 24GB",
-        "url": "https://uk.webuy.com/product-detail/?id=SGRAASU309024G02&categoryName=PCI-EXPRESS-GRAPHICS-CARDS&superCatName=COMPUTING",
+        "url": "https://uk.webuy.com/product-detail?id=SGRAASU309024G02&categoryName=PCI-EXPRESS-GRAPHICS-CARDS&superCatName=COMPUTING",
     },
     {
         "name": "EVGA GeForce RTX 3090 Ti FTW3 Ultra Gaming 24GB",
@@ -152,7 +153,7 @@ TRACKED_CARDS = [
     },
     {
         "name": "PNY GeForce RTX 3090 XLR8 Gaming 24GB",
-        "url": "https://uk.webuy.com/product-detail?id=SGRAPNY309024G01&categoryName=PCI-EXPRESS-GRAPHICS-CARDS&superCatName=COMPUTING",
+        "url": "https://uk.webuy.com/product-detail/?id=SGRAPNY309024G01&categoryName=PCI-EXPRESS-GRAPHICS-CARDS&superCatName=COMPUTING",
     },
     {
         "name": "Zotac GeForce RTX 3090 Trinity OC 24GB",
@@ -207,75 +208,75 @@ HTML_OUTPUT = "index.html"
 
 
 def load_previous_state():
-  if os.path.exists(STATE_FILE):
-    try:
-      with open(STATE_FILE, "r") as f:
-        return json.load(f)
-    except Exception:
-      return {}
-  return {}
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
 
 
 def save_current_state(state):
-  with open(STATE_FILE, "w") as f:
-    json.dump(state, f, indent=4)
+    with open(STATE_FILE, "w") as f:
+        json.dump(state, f, indent=4)
 
 
 def check_cex_stock(product_url):
-  try:
-    match = re.search(r"id=([A-Za-z0-9_-]+)", product_url)
-    if not match:
-      return {"in_stock": False, "price": "Invalid URL"}
+    try:
+        match = re.search(r"id=([A-Za-z0-9_-]+)", product_url)
+        if not match:
+            return {"in_stock": False, "price": "Invalid URL"}
 
-    prod_id = match.group(1)
-    api_url = f"https://wss2.cex.uk.webuy.io/v3/boxes/{prod_id}/detail"
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        )
-    }
+        prod_id = match.group(1)
+        api_url = f"https://wss2.cex.uk.webuy.io/v3/boxes/{prod_id}/detail"
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            )
+        }
 
-    response = requests.get(api_url, headers=headers, timeout=8)
-    if response.status_code == 200:
-      data = response.json()
-      box_data = data.get("response", {}).get("data", {}).get("boxDetails", [])
-      if box_data:
-        item = box_data[0]
-        price_val = item.get("sellPrice")
-        stock_val = item.get("outOfStock", 1)
-        price_str = f"£{price_val:.2f}" if price_val else "£POA"
-        return {"in_stock": stock_val == 0, "price": price_str}
+        response = requests.get(api_url, headers=headers, timeout=8)
+        if response.status_code == 200:
+            data = response.json()
+            box_data = data.get("response", {}).get("data", {}).get("boxDetails", [])
+            if box_data:
+                item = box_data[0]
+                price_val = item.get("sellPrice")
+                stock_val = item.get("outOfStock", 1)
+                price_str = f"£{price_val:.2f}" if price_val else "£POA"
+                return {"in_stock": stock_val == 0, "price": price_str}
 
-    return {"in_stock": False, "price": "£POA"}
-  except Exception as e:
-    print(f"Error checking stock for {product_url}: {e}")
-    return {"in_stock": False, "price": "Error"}
+        return {"in_stock": False, "price": "£POA"}
+    except Exception as e:
+        print(f"Error checking stock for {product_url}: {e}")
+        return {"in_stock": False, "price": "Error"}
 
 
 def send_stock_alert_email(card_name, price):
-  sender_email = os.environ.get("EMAIL_USER")
-  email_pass = os.environ.get("EMAIL_PASS")
+    sender_email = os.environ.get("EMAIL_USER")
+    email_pass = os.environ.get("EMAIL_PASS")
 
-  if not sender_email or not email_pass:
-    print("Email credentials not set.")
-    return
+    if not sender_email or not email_pass:
+        print("Email credentials not set.")
+        return
 
-  msg = EmailMessage()
-  msg.set_content(
-      f"Good news! {card_name} is now IN STOCK at CeX for {price}.\nCheck it"
-      " out immediately."
-  )
-  msg["Subject"] = f"🚨 CeX Stock Alert: {card_name} Available!"
-  msg["From"] = sender_email
-  msg["To"] = sender_email
+    msg = EmailMessage()
+    msg.set_content(
+        f"Good news! {card_name} is now IN STOCK at CeX for {price}.\nCheck it"
+        " out immediately."
+    )
+    msg["Subject"] = f"🚨 CeX Stock Alert: {card_name} Available!"
+    msg["From"] = sender_email
+    msg["To"] = sender_email
 
-  try:
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-      server.login(sender_email, email_pass)
-      server.send_message(msg)
-    print(f"Alert sent for {card_name}")
-  except Exception as e:
-    print(f"Failed to send email alert: {e}")
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, email_pass)
+            server.send_message(msg)
+        print(f"Alert sent for {card_name}")
+    except Exception as e:
+        print(f"Failed to send email alert: {e}")
 
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
@@ -335,59 +336,51 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
 
 def main():
-  previous_states = load_previous_state()
-  new_states = {}
-  results = []
+    previous_states = load_previous_state()
+    new_states = {}
+    results = []
 
-  for entry in TRACKED_CARDS:
-    if isinstance(entry, str):
-      results.append(
-          {"is_header": True, "text": entry.replace("#", "").strip()}
-      )
-      continue
+    for entry in TRACKED_CARDS:
+        if isinstance(entry, str):
+            results.append(
+                {"is_header": True, "text": entry.replace("#", "").strip()}
+            )
+            continue
 
-    card_name = entry["name"]
-    url = entry["url"]
-    status = check_cex_stock(url)
-    is_in_stock = status["in_stock"]
-    price = status["price"]
+        card_name = entry["name"]
+        url = entry["url"]
+        status = check_cex_stock(url)
+        is_in_stock = status["in_stock"]
+        price = status["price"]
 
-    new_states[card_name] = is_in_stock
+        new_states[card_name] = is_in_stock
 
-    was_in_stock = previous_states.get(card_name, False)
-    if not was_in_stock and is_in_stock:
-      send_stock_alert_email(card_name, price)
+        was_in_stock = previous_states.get(card_name, False)
+        if not was_in_stock and is_in_stock:
+            send_stock_alert_email(card_name, price)
 
-    results.append({
-        "is_header": False,
-        "name": card_name,
-        "in_stock": is_in_stock,
-        "price": price,
-        "url": url,
-    })
+        results.append({
+            "is_header": False,
+            "name": card_name,
+            "in_stock": is_in_stock,
+            "price": price,
+            "url": url,
+        })
 
-  save_current_state(new_states)
+    save_current_state(new_states)
 
-  # Generate index.html for GitHub Pages
-  timestamp_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-  rendered_html = (
-      PAGE_TEMPLATE.replace("{{ timestamp }}", timestamp_str)
-      .replace("{% for item in results %}", "")
-      .replace("{% endfor %}", "")
-  )
-
-  # Simple Jinja-like evaluation replacement for standalone execution
-  html_rows = []
-  for item in results:
-    if item["is_header"]:
-      html_rows.append(f'<div class="section-header">{item["text"]}</div>')
-    else:
-      green_red = (
-          '<span class="status-green">🟢</span>'
-          if item["in_stock"]
-          else '<span class="status-red">🔴</span>'
-      )
-      html_rows.append(f"""
+    # Generate html rows for template replacement
+    html_rows = []
+    for item in results:
+        if item["is_header"]:
+            html_rows.append(f'<div class="section-header">{item["text"]}</div>')
+        else:
+            green_red = (
+                '<span class="status-green">🟢</span>'
+                if item["in_stock"]
+                else '<span class="status-red">🔴</span>'
+            )
+            html_rows.append(f"""
             <div class="card-row">
                 <div><strong>{item['name']}</strong></div>
                 <div>
@@ -400,7 +393,10 @@ def main():
             </div>
             """)
 
-  final_page = (
+    uk_tz = pytz.timezone('Europe/London')
+    timestamp_str = datetime.now(uk_tz).strftime('%Y-%m-%d %H:%M:%S %Z')
+
+    final_page = (
         PAGE_TEMPLATE.replace("{{ timestamp }}", timestamp_str)
         .replace(
             """    {% for item in results %}
@@ -428,11 +424,9 @@ def main():
         )
     )
 
-  with open(HTML_OUTPUT, "w", encoding="utf-8") as f:
-    f.write(final_page)
+    with open(HTML_OUTPUT, "w", encoding="utf-8") as f:
+        f.write(final_page)
 
 
 if __name__ == "__main__":
-  main()
-
-  
+    main()
