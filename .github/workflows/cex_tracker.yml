@@ -29,5 +29,5 @@ jobs:
       - name: Commit updated state
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update stock state cache [skip ci]"
-          file_pattern: stock_state.json
+          commit_message: "Update stock state cache and dashboard [skip ci]"
+          file_pattern: "stock_state.json index.html"
