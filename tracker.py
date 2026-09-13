@@ -265,6 +265,7 @@ def send_stock_alert_email(card_name, price):
     msg.set_content(
         f"Good news! {card_name} is now IN STOCK at CeX for {price}.\nCheck it"
         " out immediately."
+        "https://pete-andrew.github.io/CexTracker/"
     )
     msg["Subject"] = f"🚨 CeX Stock Alert: {card_name} Available!"
     msg["From"] = sender_email
