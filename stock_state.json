@@ -2,7 +2,7 @@
     "EVGA GeForce RTX 3090 KingPin AIO 24GB": false,
     "KFA2 GeForce RTX 3090 HOF 24GB": false,
     "MSI GeForce RTX 3090 Ti SUPRIM X 24GB": false,
-    "MSI GeForce RTX 3090 SUPRIM X 24GB": false,
+    "MSI GeForce RTX 3090 SUPRIM X 24GB": true,
     "Asus GeForce RTX 3090 ROG Strix Gaming OC White Ed. 24GB": false,
     "Asus GeForce RTX 3090 ROG Strix Gaming White 24GB": false,
     "Asus GeForce RTX 3090 ROG Strix Gaming OC 24GB": false,
@@ -43,6 +43,6 @@
     "Colorful GeForce RTX 3090 Ti NB EX-V 24GB": false,
     "Palit GeForce RTX 3090 Gaming Pro OC 24GB": false,
     "Palit GeForce RTX 3090 Gaming Pro 24GB": false,
-    "MSi GeForce RTX 3090 Ventus 3X OC 24GB": true,
+    "MSi GeForce RTX 3090 Ventus 3X OC 24GB": false,
     "Gigabyte GeForce RTX 3090 Turbo 24GB (Blower)": false
 }
