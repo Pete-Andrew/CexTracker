@@ -17,7 +17,7 @@
     "Inno3D GeForce RTX 3090 iChill X3 24GB": false,
     "ASUS GeForce RTX 3090 Ti TUF Gaming OC Edition 24GB": false,
     "ASUS GeForce RTX 3090 Ti TUF Gaming 24GB": false,
-    "Asus GeForce RTX 3090 TUF Gaming OC 24GB": true,
+    "Asus GeForce RTX 3090 TUF Gaming OC 24GB": false,
     "Asus GeForce RTX 3090 TUF Gaming 24GB": false,
     "MSI GeForce RTX 3090 Ti Gaming X Trio 24GB": false,
     "MSI GeForce RTX 3090 Gaming X Trio 24GB": false,
@@ -43,6 +43,6 @@
     "Colorful GeForce RTX 3090 Ti NB EX-V 24GB": false,
     "Palit GeForce RTX 3090 Gaming Pro OC 24GB": false,
     "Palit GeForce RTX 3090 Gaming Pro 24GB": false,
-    "MSi GeForce RTX 3090 Ventus 3X OC 24GB": true,
+    "MSi GeForce RTX 3090 Ventus 3X OC 24GB": false,
     "Gigabyte GeForce RTX 3090 Turbo 24GB (Blower)": false
 }
